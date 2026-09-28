@@ -18,5 +18,5 @@ export function Button({ children, href, variant = "primary", className = "" }: 
   const classes = `inline-flex min-h-11 items-center justify-center rounded-full px-5 text-sm font-medium transition ${styles[variant]} ${className}`;
 
   if (href) return <Link href={href} className={classes}>{children}</Link>;
-  return <button className={classes}>{children}</button>;
+  return <button type="button" className={classes}>{children}</button>;
 }
