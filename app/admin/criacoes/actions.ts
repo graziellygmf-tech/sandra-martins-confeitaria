@@ -1,14 +1,15 @@
 "use server";
 
+import { requireAdmin } from "@/lib/supabase/admin";
+
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
 
 function clean(value: FormDataEntryValue | null) {
   return String(value ?? "").trim();
 }
 
 export async function saveCreation(formData: FormData) {
-  const supabase = await createClient();
+  const { supabase } = await requireAdmin();
   const id = clean(formData.get("id"));
   const title = clean(formData.get("title"));
   const slug = clean(formData.get("slug"));

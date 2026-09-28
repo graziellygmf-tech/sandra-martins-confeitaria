@@ -1,14 +1,15 @@
 "use server";
 
+import { requireAdmin } from "@/lib/supabase/admin";
+
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
 
 function clean(value: FormDataEntryValue | null) {
   return String(value ?? "").trim();
 }
 
 export async function saveCategory(formData: FormData) {
-  const supabase = await createClient();
+  const { supabase } = await requireAdmin();
   const id = clean(formData.get("id"));
   const name = clean(formData.get("name"));
   const slug = clean(formData.get("slug"));
@@ -38,6 +39,7 @@ export async function saveCategory(formData: FormData) {
 }
 
 export async function toggleCategory(id: string, isActive: boolean) {
+  await requireAdmin();
   const supabase = await createClient();
   const { error } = await supabase.from("categories").update({ is_active: isActive }).eq("id", id);
   if (error) throw new Error(error.message);
