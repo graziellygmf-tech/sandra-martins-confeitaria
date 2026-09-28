@@ -45,7 +45,7 @@ export default async function CreationPage({ params }: Props) {
       <header className="border-b border-[#e8e1d8] bg-[#faf8f4]">
         <Container className="flex min-h-20 items-center justify-between gap-4">
           <a href="/" className="font-serif text-xl tracking-[-0.02em]">Sandra Martins</a>
-          <Button href="/#orcamento" variant="secondary">Pedir orçamento</Button>
+          <Button href={"/?creation=" + creation.id + "#orcamento"} variant="secondary">Pedir orçamento</Button>
         </Container>
       </header>
       <Container className="py-8 sm:py-12">
