@@ -3,7 +3,7 @@ import type { Category, Creation, CreationImage } from "@/lib/supabase/types";
 
 export type GalleryCreation = Creation & {
   category: Pick<Category, "name" | "slug">;
-  images: CreationImage[];
+  images: Array<CreationImage & { public_url: string }>;
 };
 
 export async function getGallery(): Promise<GalleryCreation[]> {
@@ -24,5 +24,5 @@ export async function getGallery(): Promise<GalleryCreation[]> {
     return [];
   }
 
-  return (data ?? []) as GalleryCreation[];
+  const creations = (data ?? []) as GalleryCreation[];\n\n  return creations.map((creation) => ({\n    ...creation,\n    images: creation.images.map((image) => ({\n      ...image,\n      public_url: supabase.storage.from("gallery").getPublicUrl(image.storage_path).data.publicUrl\n    }))\n  }));
 }
