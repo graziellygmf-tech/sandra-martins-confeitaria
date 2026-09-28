@@ -3,7 +3,12 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Sandra Martins Confeitaria",
-  description: "Confeitaria feita sob encomenda."
+  description: "Confeitaria feita sob encomenda.",
+  openGraph: {
+    title: "Sandra Martins Confeitaria",
+    description: "Confeitaria feita sob encomenda.",
+    type: "website"
+  }
 };
 
 export default function RootLayout({
