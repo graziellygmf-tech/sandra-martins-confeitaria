@@ -105,7 +105,7 @@ export default function Home() {
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#8a7c6d]">Próximo passo</p>
           <h2 className="mx-auto mt-4 max-w-2xl font-serif text-4xl tracking-[-0.03em] sm:text-5xl">Tem uma ideia para a sua próxima comemoração?</h2>
           <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-[#655f58]">Escolha uma data e conte um pouco sobre o que você procura. O orçamento continua sendo feito de forma pessoal pelo WhatsApp.</p>
-          <div className="mt-8"><Button href="https://wa.me/" >Conversar pelo WhatsApp</Button></div>
+          <div className="mt-8"><Button href="#disponibilidade">Escolher uma data</Button></div>
         </Container>
       </section>
 
@@ -114,7 +114,7 @@ export default function Home() {
           <span>Sandra Martins Confeitaria</span>
           <span>Fortaleza, Ceará</span>
         </Container>
-      </section>
+      </footer>
     </main>
   );
 }
