@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
-import { ImagePlaceholder } from "@/components/site/image-placeholder";
+import { GalleryPreview } from "@/components/site/gallery-preview";
 import { SectionHeading } from "@/components/site/section-heading";
+import { getGallery } from "@/lib/gallery/get-gallery";
 
 const steps = [
   ["01", "Inspire-se", "Conheça as criações e encontre referências para a sua ocasião."],
@@ -10,7 +11,9 @@ const steps = [
   ["04", "Receba seu orçamento", "A Sandra conversa com você pelo WhatsApp e combina os próximos passos."]
 ];
 
-export default function Home() {
+export default async function Home() {
+  const creations = await getGallery();
+
   return (
     <main className="overflow-hidden">
       <header className="border-b border-[#e8e1d8]">
@@ -40,18 +43,16 @@ export default function Home() {
               <Button href="#disponibilidade" variant="secondary">Ver disponibilidade</Button>
             </div>
           </div>
-          <ImagePlaceholder label="Área reservada para a fotografia principal da marca." className="min-h-[28rem] lg:min-h-[38rem]" />
+          <div className="min-h-[28rem] rounded-[2rem] bg-[#e8e0d5] p-6 lg:min-h-[38rem]">
+            <p className="text-sm text-[#655f58]">Área reservada para a fotografia principal da marca.</p>
+          </div>
         </Container>
       </section>
 
       <section id="criacao" className="py-20 sm:py-28">
         <Container>
-          <SectionHeading eyebrow="O trabalho" title="Uma galeria para escolher pelo olhar." description="As fotografias e informações das criações virão do catálogo administrado pela Sandra." />
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            <ImagePlaceholder label="Criação em destaque — imagem vinda do catálogo." className="min-h-[24rem]" />
-            <ImagePlaceholder label="Outra criação — imagem vinda do catálogo." className="min-h-[24rem] md:mt-12" />
-            <ImagePlaceholder label="Outra criação — imagem vinda do catálogo." className="min-h-[24rem]" />
-          </div>
+          <SectionHeading eyebrow="O trabalho" title="Uma galeria para escolher pelo olhar." description="As fotografias e informações das criações vêm do catálogo administrado pela Sandra." />
+          <GalleryPreview creations={creations} />
         </Container>
       </section>
 
