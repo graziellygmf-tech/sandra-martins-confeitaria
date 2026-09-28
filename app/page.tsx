@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { GalleryPreview } from "@/components/site/gallery-preview";
 import { SectionHeading } from "@/components/site/section-heading";
+import { AvailabilityCalendar } from "@/components/site/availability-calendar";
+import { getAvailability } from "@/lib/availability/get-availability";
 import { getGallery } from "@/lib/gallery/get-gallery";
 
 const steps = [
@@ -11,8 +13,26 @@ const steps = [
   ["04", "Receba seu orçamento", "A Sandra conversa com você pelo WhatsApp e combina os próximos passos."]
 ];
 
-export default async function Home() {
-  const creations = await getGallery();
+type Props = { searchParams: Promise<{ month?: string }> };
+
+function currentMonth() {
+  return new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "2-digit", timeZone: "America/Fortaleza" }).format(new Date());
+}
+
+function monthRange(month: string) {
+  const [year, monthNumber] = month.split("-").map(Number);
+  const last = new Date(Date.UTC(year, monthNumber, 0)).getUTCDate();
+  return { start: month + "-01", end: month + "-" + String(last).padStart(2, "0") };
+}
+
+export default async function Home({ searchParams }: Props) {
+  const params = await searchParams;
+  const month = /^\d{4}-\d{2}$/.test(params.month ?? "") ? params.month! : currentMonth();
+  const { start, end } = monthRange(month);
+  const [creations, availability] = await Promise.all([
+    getGallery(),
+    getAvailability(start, end)
+  ]);
 
   return (
     <main className="overflow-hidden">
@@ -32,12 +52,8 @@ export default async function Home() {
         <Container className="grid items-center gap-10 lg:grid-cols-[1.05fr_.95fr] lg:gap-16">
           <div className="max-w-2xl">
             <p className="mb-5 text-xs font-semibold uppercase tracking-[0.24em] text-[#8a7c6d]">Confeitaria feita sob encomenda</p>
-            <h1 className="font-serif text-5xl leading-[.98] tracking-[-0.045em] text-[#292622] sm:text-6xl lg:text-7xl">
-              Doces que começam na sua ideia.
-            </h1>
-            <p className="mt-6 max-w-xl text-base leading-7 text-[#655f58] sm:text-lg">
-              Uma experiência simples para conhecer criações, escolher sua data e conversar sobre o que você imaginou.
-            </p>
+            <h1 className="font-serif text-5xl leading-[.98] tracking-[-0.045em] text-[#292622] sm:text-6xl lg:text-7xl">Doces que começam na sua ideia.</h1>
+            <p className="mt-6 max-w-xl text-base leading-7 text-[#655f58] sm:text-lg">Uma experiência simples para conhecer criações, escolher sua data e conversar sobre o que você imaginou.</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button href="#criacao">Ver criações</Button>
               <Button href="#disponibilidade" variant="secondary">Ver disponibilidade</Button>
@@ -72,19 +88,17 @@ export default async function Home() {
       </section>
 
       <section id="disponibilidade" className="py-20 sm:py-28">
-        <Container className="grid gap-10 lg:grid-cols-[.7fr_1.3fr] lg:items-end">
-          <SectionHeading eyebrow="Agenda" title="Primeiro, encontre uma data que funcione." description="A agenda pública será alimentada pelo painel da Sandra, evitando prometer datas que já estejam ocupadas." />
-          <div className="rounded-[2rem] border border-[#ded5c9] p-7 sm:p-10">
-            <div className="grid grid-cols-3 gap-3 sm:grid-cols-7">
-              {["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"].map((day) => (
-                <span key={day} className="py-2 text-center text-xs uppercase tracking-wider text-[#8a7c6d]">{day}</span>
-              ))}
+        <Container className="grid gap-10 lg:grid-cols-[.7fr_1.3fr] lg:items-start">
+          <div>
+            <SectionHeading eyebrow="Agenda" title="Primeiro, encontre uma data que funcione." description="A agenda pública mostra somente o estado definido no painel da Sandra." />
+            <div className="mt-6 flex flex-wrap gap-3 text-xs text-[#655f58]">
+              <span className="rounded-full border border-[#d8d0c5] px-3 py-2">Disponível</span>
+              <span className="rounded-full border border-[#cbbba8] bg-[#efe7dc] px-3 py-2">Poucas vagas</span>
+              <span className="rounded-full border border-[#e1ddd7] bg-[#ece9e5] px-3 py-2">Indisponível</span>
             </div>
-            <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-7">
-              {Array.from({ length: 14 }, (_, index) => (
-                <div key={index} className="aspect-square rounded-2xl bg-[#f4efe8] p-3 text-sm text-[#6b6259]">{index + 1}</div>
-              ))}
-            </div>
+          </div>
+          <div className="rounded-[2rem] border border-[#ded5c9] p-6 sm:p-10">
+            <AvailabilityCalendar month={month} availability={availability} />
           </div>
         </Container>
       </section>
@@ -95,9 +109,7 @@ export default async function Home() {
             <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-[#c8bbaa]">Sandra Martins</p>
             <h2 className="font-serif text-4xl leading-tight tracking-[-0.03em] sm:text-5xl">A confeitaria por trás das criações.</h2>
           </div>
-          <p className="max-w-xl text-base leading-8 text-[#d8d0c6]">
-            Este espaço vai contar a história da Sandra e mostrar o jeito de trabalhar por trás de cada encomenda — com uma linguagem simples e verdadeira.
-          </p>
+          <p className="max-w-xl text-base leading-8 text-[#d8d0c6]">Este espaço vai contar a história da Sandra e mostrar o jeito de trabalhar por trás de cada encomenda — com uma linguagem simples e verdadeira.</p>
         </Container>
       </section>
 
