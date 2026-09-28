@@ -4,13 +4,15 @@ import type { AvailabilityDay } from "@/lib/supabase/types";
 const labels = {
   AVAILABLE: "Disponível",
   LIMITED: "Poucas vagas",
-  BLOCKED: "Indisponível"
+  BLOCKED: "Indisponível",
+  UNKNOWN: "Consulte"
 } as const;
 
 const statusClasses = {
   AVAILABLE: "border-[#d8d0c5] bg-[#faf8f4] text-[#292622]",
   LIMITED: "border-[#cbbba8] bg-[#efe7dc] text-[#5e5144]",
-  BLOCKED: "border-[#e1ddd7] bg-[#ece9e5] text-[#9a938b]"
+  BLOCKED: "border-[#e1ddd7] bg-[#ece9e5] text-[#9a938b]",
+  UNKNOWN: "border-[#d8d0c5] bg-white text-[#655f58]"
 } as const;
 
 function monthLabel(month: string) {
@@ -34,18 +36,10 @@ function buildDays(month: string, availability: AvailabilityDay[]) {
   });
 }
 
-export function AvailabilityCalendar({
-  month,
-  availability
-}: {
-  month: string;
-  availability: AvailabilityDay[];
-}) {
+export function AvailabilityCalendar({ month, availability }: { month: string; availability: AvailabilityDay[] }) {
   const [year, monthNumber] = month.split("-").map(Number);
-  const previousDate = new Date(Date.UTC(year, monthNumber - 2, 1));
-  const nextDate = new Date(Date.UTC(year, monthNumber, 1));
-  const previous = previousDate.toISOString().slice(0, 7);
-  const next = nextDate.toISOString().slice(0, 7);
+  const previous = new Date(Date.UTC(year, monthNumber - 2, 1)).toISOString().slice(0, 7);
+  const next = new Date(Date.UTC(year, monthNumber, 1)).toISOString().slice(0, 7);
   const days = buildDays(month, availability);
 
   return (
@@ -60,20 +54,23 @@ export function AvailabilityCalendar({
         {["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"].map((day) => (
           <span key={day} className="py-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8a7c6d] sm:text-xs">{day}</span>
         ))}
-        {days.map((item, index) =>
-          item ? (
-            <div key={item.date} className={"min-h-20 rounded-2xl border p-2 text-left sm:min-h-24 sm:p-3 " + statusClasses[item.availability?.status ?? "AVAILABLE"]}>
+        {days.map((item, index) => {
+          if (!item) return <div key={"empty-" + index} aria-hidden="true" />;
+          const status = item.availability?.status ?? "UNKNOWN";
+          return (
+            <div key={item.date} className={"min-h-20 rounded-2xl border p-2 text-left sm:min-h-24 sm:p-3 " + statusClasses[status]}>
               <span className="text-sm font-medium">{item.day}</span>
-              <span className="mt-2 block text-[10px] leading-4 sm:text-xs">{labels[item.availability?.status ?? "AVAILABLE"]}</span>
+              <span className="mt-2 block text-[10px] leading-4 sm:text-xs">{labels[status]}</span>
             </div>
-          ) : <div key={"empty-" + index} aria-hidden="true" />
-        )}
+          );
+        })}
       </div>
 
       <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-xs text-[#655f58]">
         <span>● Disponível</span>
         <span>● Poucas vagas</span>
         <span>● Indisponível</span>
+        <span>● Consulte</span>
       </div>
     </div>
   );
