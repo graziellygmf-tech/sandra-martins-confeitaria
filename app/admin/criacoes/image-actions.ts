@@ -74,8 +74,7 @@ export async function uploadCreationImage(formData: FormData) {
 }
 
 export async function setCreationCover(formData: FormData) {
-  await requireAdmin();
-  const supabase = await createClient();
+  const { supabase } = await requireAdmin();
   const creationId = clean(formData.get("creation_id"));
   const imageId = clean(formData.get("image_id"));
 
@@ -101,8 +100,7 @@ export async function setCreationCover(formData: FormData) {
 }
 
 export async function deleteCreationImage(formData: FormData) {
-  await requireAdmin();
-  const supabase = await createClient();
+  const { supabase } = await requireAdmin();
   const imageId = clean(formData.get("image_id"));
 
   if (!imageId) throw new Error("Imagem inválida.");

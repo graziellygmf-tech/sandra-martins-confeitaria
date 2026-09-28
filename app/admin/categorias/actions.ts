@@ -39,8 +39,7 @@ export async function saveCategory(formData: FormData) {
 }
 
 export async function toggleCategory(id: string, isActive: boolean) {
-  await requireAdmin();
-  const supabase = await createClient();
+  const { supabase } = await requireAdmin();
   const { error } = await supabase.from("categories").update({ is_active: isActive }).eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/admin");
