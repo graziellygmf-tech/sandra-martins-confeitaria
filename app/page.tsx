@@ -32,12 +32,19 @@ export default async function Home({ searchParams }: Props) {
   const month = /^\d{4}-\d{2}$/.test(params.month ?? "") ? params.month! : currentMonth();
   const supabase = await createClient();
   const { start, end } = monthRange(month);
-  const [creations, availability] = await Promise.all([
+  const [creations, availability, creationOptions] = await Promise.all([
     getGallery(),
-    getAvailability(start, end)
+    getAvailability(start, end),
+    supabase
+      .from("creations")
+      .select("id, title")
+      .eq("is_published", true)
+      .order("position", { ascending: true })
   ]);
 
-  const selectedCreation = params.creation ? creationOptions.data?.find((creation) => creation.id === params.creation) : undefined;
+  const selectedCreation = params.creation
+    ? creationOptions.data?.find((creation) => creation.id === params.creation)
+    : undefined;
 
   return (
     <main className="overflow-hidden">
