@@ -22,11 +22,13 @@ export function GalleryPreview({ creations }: { creations: GalleryCreation[] }) 
           <article key={creation.id} className={index % 3 === 1 ? "md:mt-12" : ""}>
             {cover ? (
               <div className="overflow-hidden rounded-[2rem] bg-[#e8e0d5]">
-                <div className="aspect-[4/5]">
-                  <div className="h-full w-full bg-[#e8e0d5] p-6">
-                    <p className="text-sm text-[#655f58]">{creation.title}</p>
-                    <p className="mt-2 text-xs text-[#8a7c6d]">{creation.category.name}</p>
-                  </div>
+                <div className="overflow-hidden">
+                  <img
+                    src={cover.public_url}
+                    alt={cover.alt_text || creation.title}
+                    loading={index < 3 ? "eager" : "lazy"}
+                    className="h-auto w-full object-contain transition-transform duration-500 hover:scale-[1.015]"
+                  />
                 </div>
               </div>
             ) : (
