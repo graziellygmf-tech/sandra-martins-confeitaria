@@ -5,6 +5,8 @@ import { SectionHeading } from "@/components/site/section-heading";
 import { AvailabilityCalendar } from "@/components/site/availability-calendar";
 import { getAvailability } from "@/lib/availability/get-availability";
 import { getGallery } from "@/lib/gallery/get-gallery";
+import { QuoteForm } from "@/components/site/quote-form";
+import { createClient } from "@/lib/supabase/server";
 
 const steps = [
   ["01", "Inspire-se", "Conheça as criações e encontre referências para a sua ocasião."],
@@ -13,7 +15,7 @@ const steps = [
   ["04", "Receba seu orçamento", "A Sandra conversa com você pelo WhatsApp e combina os próximos passos."]
 ];
 
-type Props = { searchParams: Promise<{ month?: string }> };
+type Props = { searchParams: Promise<{ month?: string; quote?: string; creation?: string; date?: string }> };
 
 function currentMonth() {
   return new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "2-digit", timeZone: "America/Fortaleza" }).format(new Date());
@@ -28,11 +30,14 @@ function monthRange(month: string) {
 export default async function Home({ searchParams }: Props) {
   const params = await searchParams;
   const month = /^\d{4}-\d{2}$/.test(params.month ?? "") ? params.month! : currentMonth();
+  const supabase = await createClient();
   const { start, end } = monthRange(month);
   const [creations, availability] = await Promise.all([
     getGallery(),
     getAvailability(start, end)
   ]);
+
+  const selectedCreation = params.creation ? creationOptions.data?.find((creation) => creation.id === params.creation) : undefined;
 
   return (
     <main className="overflow-hidden">
@@ -118,7 +123,16 @@ export default async function Home({ searchParams }: Props) {
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#8a7c6d]">Próximo passo</p>
           <h2 className="mx-auto mt-4 max-w-2xl font-serif text-4xl tracking-[-0.03em] sm:text-5xl">Tem uma ideia para a sua próxima comemoração?</h2>
           <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-[#655f58]">Escolha uma data e conte um pouco sobre o que você procura. O orçamento continua sendo feito de forma pessoal pelo WhatsApp.</p>
-          <div className="mt-8"><Button href="#disponibilidade">Escolher uma data</Button></div>
+          <div className="mt-8"><Button href="#orcamento">Pedir orçamento</Button></div>
+        </Container>
+      </section>
+
+      <section id="orcamento" className="scroll-mt-8 py-20 sm:py-28">
+        <Container className="grid gap-10 lg:grid-cols-[.7fr_1.3fr] lg:items-start">
+          <SectionHeading eyebrow="Orçamento" title="Conte o que você está imaginando." description="Envie a data e os detalhes da encomenda. A solicitação será recebida pela Sandra para avaliação." />
+          <div className="rounded-[2rem] border border-[#ded5c9] bg-white p-6 sm:p-10">
+            <QuoteForm creations={creationOptions.data ?? []} selectedCreationId={selectedCreation?.id} selectedDate={params.date} state={params.quote} />
+          </div>
         </Container>
       </section>
 
