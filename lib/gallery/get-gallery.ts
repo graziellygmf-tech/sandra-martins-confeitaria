@@ -8,12 +8,9 @@ export type GalleryCreation = Creation & {
 
 export async function getGallery(): Promise<GalleryCreation[]> {
   const supabase = await createClient();
-
   const { data, error } = await supabase
     .from("creations")
-    .select(
-      "*, category:categories!inner(name, slug), images:creation_images(*)"
-    )
+    .select("*, category:categories!inner(name, slug), images:creation_images(*)")
     .eq("is_published", true)
     .eq("categories.is_active", true)
     .order("position", { ascending: true })
@@ -24,5 +21,12 @@ export async function getGallery(): Promise<GalleryCreation[]> {
     return [];
   }
 
-  const creations = (data ?? []) as GalleryCreation[];\n\n  return creations.map((creation) => ({\n    ...creation,\n    images: creation.images.map((image) => ({\n      ...image,\n      public_url: supabase.storage.from("gallery").getPublicUrl(image.storage_path).data.publicUrl\n    }))\n  }));
+  const creations = (data ?? []) as GalleryCreation[];
+  return creations.map((creation) => ({
+    ...creation,
+    images: creation.images.map((image) => ({
+      ...image,
+      public_url: supabase.storage.from("gallery").getPublicUrl(image.storage_path).data.publicUrl
+    }))
+  }));
 }
