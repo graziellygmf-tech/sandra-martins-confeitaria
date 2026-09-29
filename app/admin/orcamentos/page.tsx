@@ -1,25 +1,25 @@
+import { AdminHeader } from "@/components/admin/admin-header";
+import { requireAdmin } from "@/lib/supabase/admin";
 import Link from "next/link";
 import { Container } from "@/components/ui/container";
-import { createClient } from "@/lib/supabase/server";
 import { updateQuoteStatus } from "./actions";
 
 const labels = { NEW: "Novo", CONTACTED: "Contato feito", QUOTED: "Orçamento enviado", CONFIRMED: "Confirmado", CANCELLED: "Cancelado" } as const;
 
 export default async function Page() {
-  const supabase = await createClient();
-  const { data: quotes } = await supabase.from("quote_requests").select("*, creation:creations(title)").order("created_at", { ascending: false });
+  const { supabase } = await requireAdmin();
+  const { data: quotes, error } = await supabase.from("quote_requests").select("*, creation:creations(title)").order("created_at", { ascending: false });
 
   return (
     <main className="min-h-screen bg-[#faf8f4]">
-      <header className="border-b border-[#e8e1d8] bg-white">
-        <Container className="flex min-h-20 items-center justify-between"><Link href="/admin" className="font-serif text-xl">Sandra Martins</Link><Link href="/admin" className="text-sm underline underline-offset-4">Voltar ao painel</Link></Container>
-      </header>
+      <AdminHeader />
       <Container className="py-12">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8a7c6d]">Administração</p>
         <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
           <div><h1 className="font-serif text-4xl tracking-[-0.03em]">Pedidos de orçamento</h1><p className="mt-3 max-w-xl text-base leading-7 text-[#655f58]">Solicitações recebidas pelo site, organizadas do mais recente para o mais antigo.</p></div>
           <Link href="/" className="rounded-full border border-[#d8d0c5] px-5 py-2 text-sm">Ver site</Link>
         </div>
+        {error && <p role="alert" className="mt-6 rounded-xl bg-[#f5e8e4] px-4 py-3 text-sm text-[#754f45]">Não foi possível carregar os pedidos. Tente novamente mais tarde.</p>}
         <div className="mt-10 space-y-4">
           {(quotes ?? []).map((quote) => (
             <article key={quote.id} className="rounded-[1.5rem] border border-[#ded5c9] bg-white p-6 sm:p-7">

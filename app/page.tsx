@@ -6,14 +6,6 @@ import { AvailabilityCalendar } from "@/components/site/availability-calendar";
 import { getAvailability } from "@/lib/availability/get-availability";
 import { getGallery } from "@/lib/gallery/get-gallery";
 import { QuoteForm } from "@/components/site/quote-form";
-import { createClient } from "@/lib/supabase/server";
-
-const steps = [
-  ["01", "Inspire-se", "Conheça as criações e encontre referências para a sua ocasião."],
-  ["02", "Escolha sua data", "Consulte a disponibilidade antes de definir o seu pedido."],
-  ["03", "Conte sua ideia", "Envie os detalhes que tornam a encomenda sua."],
-  ["04", "Receba seu orçamento", "A Sandra conversa com você pelo WhatsApp e combina os próximos passos."]
-];
 
 type Props = { searchParams: Promise<{ month?: string; quote?: string; creation?: string; date?: string }> };
 
@@ -30,21 +22,14 @@ function monthRange(month: string) {
 export default async function Home({ searchParams }: Props) {
   const params = await searchParams;
   const month = /^\d{4}-\d{2}$/.test(params.month ?? "") ? params.month! : currentMonth();
-  const supabase = await createClient();
   const { start, end } = monthRange(month);
-  const [creations, availability, creationOptions] = await Promise.all([
+  const [creations, availability] = await Promise.all([
     getGallery(),
-    getAvailability(start, end),
-    supabase
-      .from("creations")
-      .select("id, title")
-      .eq("is_published", true)
-      .order("position", { ascending: true })
+    getAvailability(start, end)
   ]);
 
-  const selectedCreation = params.creation
-    ? creationOptions.data?.find((creation) => creation.id === params.creation)
-    : undefined;
+  const selectedCreation = params.creation ? creations.find((creation) => creation.id === params.creation) : undefined;
+  const heroImage = (creations.find((creation) => creation.featured) ?? creations[0])?.images[0];
 
   return (
     <main className="overflow-hidden">
@@ -53,8 +38,7 @@ export default async function Home({ searchParams }: Props) {
           <div className="font-serif text-xl tracking-[-0.02em]">Sandra Martins</div>
           <nav className="hidden items-center gap-8 text-sm text-[#5f5952] md:flex">
             <a href="#criacao">Criações</a>
-            <a href="#processo">Como funciona</a>
-            <a href="#sobre">Sobre</a>
+            <a href="#disponibilidade">Agenda</a>
           </nav>
           <Button href="#orcamento" variant="secondary">Pedir orçamento</Button>
         </Container>
@@ -63,51 +47,33 @@ export default async function Home({ searchParams }: Props) {
       <section className="py-10 sm:py-16 lg:py-20">
         <Container className="grid items-center gap-10 lg:grid-cols-[1.05fr_.95fr] lg:gap-16">
           <div className="max-w-2xl">
-            <p className="mb-5 text-xs font-semibold uppercase tracking-[0.24em] text-[#8a7c6d]">Confeitaria feita sob encomenda</p>
-            <h1 className="font-serif text-5xl leading-[.98] tracking-[-0.045em] text-[#292622] sm:text-6xl lg:text-7xl">Doces que começam na sua ideia.</h1>
-            <p className="mt-6 max-w-xl text-base leading-7 text-[#655f58] sm:text-lg">Uma experiência simples para conhecer criações, escolher sua data e conversar sobre o que você imaginou.</p>
+            <h1 className="font-serif text-5xl leading-[.98] tracking-[-0.045em] text-[#292622] sm:text-6xl lg:text-7xl">Bolos para celebrar.</h1>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button href="#criacao">Ver criações</Button>
-              <Button href="#disponibilidade" variant="secondary">Ver disponibilidade</Button>
+              <Button href="#disponibilidade" variant="secondary">Consultar agenda</Button>
             </div>
           </div>
-          <div className="min-h-[28rem] rounded-[2rem] bg-[#e8e0d5] p-6 lg:min-h-[38rem]">
-            <p className="text-sm text-[#655f58]">Área reservada para a fotografia principal da marca.</p>
+          <div className="relative min-h-[28rem] overflow-hidden rounded-[2rem] bg-[#e8e0d5] lg:min-h-[38rem]">
+            {heroImage ? (
+              <img src={heroImage.public_url} alt={heroImage.alt_text || "Criação da Sandra Martins Confeitaria"} className="absolute inset-0 h-full w-full object-cover" />
+            ) : (
+              <p className="p-6 text-sm text-[#655f58]">Bolos feitos sob encomenda para momentos especiais.</p>
+            )}
           </div>
         </Container>
       </section>
 
       <section id="criacao" className="py-20 sm:py-28">
         <Container>
-          <SectionHeading eyebrow="O trabalho" title="Uma galeria para escolher pelo olhar." description="As fotografias e informações das criações vêm do catálogo administrado pela Sandra." />
+          <SectionHeading eyebrow="Galeria" title="Encontre sua inspiração." />
           <GalleryPreview creations={creations} />
-        </Container>
-      </section>
-
-      <section id="processo" className="border-y border-[#e8e1d8] bg-[#f4efe8] py-20 sm:py-28">
-        <Container>
-          <SectionHeading eyebrow="Como funciona" title="Do primeiro olhar ao orçamento." />
-          <div className="mt-12 grid gap-px overflow-hidden rounded-[2rem] border border-[#ded5c9] bg-[#ded5c9] md:grid-cols-4">
-            {steps.map(([number, title, description]) => (
-              <article key={number} className="bg-[#f4efe8] p-7 sm:p-8">
-                <span className="text-xs font-semibold tracking-[0.18em] text-[#9a8b7b]">{number}</span>
-                <h3 className="mt-10 font-serif text-2xl text-[#292622]">{title}</h3>
-                <p className="mt-3 text-sm leading-6 text-[#655f58]">{description}</p>
-              </article>
-            ))}
-          </div>
         </Container>
       </section>
 
       <section id="disponibilidade" className="py-20 sm:py-28">
         <Container className="grid gap-10 lg:grid-cols-[.7fr_1.3fr] lg:items-start">
           <div>
-            <SectionHeading eyebrow="Agenda" title="Primeiro, encontre uma data que funcione." description="A agenda pública mostra somente o estado definido no painel da Sandra." />
-            <div className="mt-6 flex flex-wrap gap-3 text-xs text-[#655f58]">
-              <span className="rounded-full border border-[#d8d0c5] px-3 py-2">Disponível</span>
-              <span className="rounded-full border border-[#cbbba8] bg-[#efe7dc] px-3 py-2">Poucas vagas</span>
-              <span className="rounded-full border border-[#e1ddd7] bg-[#ece9e5] px-3 py-2">Indisponível</span>
-            </div>
+            <SectionHeading eyebrow="Agenda" title="Escolha uma data." />
           </div>
           <div className="rounded-[2rem] border border-[#ded5c9] p-6 sm:p-10">
             <AvailabilityCalendar month={month} availability={availability} />
@@ -115,30 +81,11 @@ export default async function Home({ searchParams }: Props) {
         </Container>
       </section>
 
-      <section id="sobre" className="bg-[#292622] py-20 text-[#faf8f4] sm:py-28">
-        <Container className="grid gap-10 lg:grid-cols-[1fr_1fr] lg:items-center">
-          <div>
-            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-[#c8bbaa]">Sandra Martins</p>
-            <h2 className="font-serif text-4xl leading-tight tracking-[-0.03em] sm:text-5xl">A confeitaria por trás das criações.</h2>
-          </div>
-          <p className="max-w-xl text-base leading-8 text-[#d8d0c6]">Este espaço vai contar a história da Sandra e mostrar o jeito de trabalhar por trás de cada encomenda — com uma linguagem simples e verdadeira.</p>
-        </Container>
-      </section>
-
-      <section id="orcamento" className="py-20 sm:py-28">
-        <Container className="rounded-[2rem] bg-[#e8e0d5] px-6 py-14 text-center sm:px-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#8a7c6d]">Próximo passo</p>
-          <h2 className="mx-auto mt-4 max-w-2xl font-serif text-4xl tracking-[-0.03em] sm:text-5xl">Tem uma ideia para a sua próxima comemoração?</h2>
-          <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-[#655f58]">Escolha uma data e conte um pouco sobre o que você procura. O orçamento continua sendo feito de forma pessoal pelo WhatsApp.</p>
-          <div className="mt-8"><Button href="#orcamento">Pedir orçamento</Button></div>
-        </Container>
-      </section>
-
       <section id="orcamento" className="scroll-mt-8 py-20 sm:py-28">
         <Container className="grid gap-10 lg:grid-cols-[.7fr_1.3fr] lg:items-start">
-          <SectionHeading eyebrow="Orçamento" title="Conte o que você está imaginando." description="Envie a data e os detalhes da encomenda. A solicitação será recebida pela Sandra para avaliação." />
+          <SectionHeading eyebrow="Orçamento" title="Peça seu orçamento." />
           <div className="rounded-[2rem] border border-[#ded5c9] bg-white p-6 sm:p-10">
-            <QuoteForm creations={creationOptions.data ?? []} selectedCreationId={selectedCreation?.id} selectedDate={params.date} state={params.quote} />
+            <QuoteForm creations={creations} selectedCreationId={selectedCreation?.id} selectedDate={params.date} state={params.quote} />
           </div>
         </Container>
       </section>
@@ -152,3 +99,4 @@ export default async function Home({ searchParams }: Props) {
     </main>
   );
 }
+

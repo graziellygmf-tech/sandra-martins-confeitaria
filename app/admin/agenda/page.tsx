@@ -1,3 +1,5 @@
+import { AdminHeader } from "@/components/admin/admin-header";
+import { requireAdmin } from "@/lib/supabase/admin";
 import Link from "next/link";
 import { Container } from "@/components/ui/container";
 import { getAvailability } from "@/lib/availability/get-availability";
@@ -16,6 +18,7 @@ function monthRange(month: string) {
 }
 
 export default async function Page({ searchParams }: Props) {
+  await requireAdmin();
   const params = await searchParams;
   const month = /^\d{4}-\d{2}$/.test(params.month ?? "") ? params.month! : currentMonth();
   const { start, end } = monthRange(month);
@@ -28,12 +31,7 @@ export default async function Page({ searchParams }: Props) {
 
   return (
     <main className="min-h-screen bg-[#faf8f4]">
-      <header className="border-b border-[#e8e1d8] bg-white">
-        <Container className="flex min-h-20 items-center justify-between">
-          <Link href="/admin" className="font-serif text-xl">Sandra Martins</Link>
-          <Link href="/admin" className="text-sm underline underline-offset-4">Voltar ao painel</Link>
-        </Container>
-      </header>
+      <AdminHeader />
       <Container className="py-12">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8a7c6d]">Administração</p>
         <div className="mt-3 flex flex-wrap items-end justify-between gap-4">

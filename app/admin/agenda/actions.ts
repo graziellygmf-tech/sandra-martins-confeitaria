@@ -1,9 +1,11 @@
 "use server";
 
+import { requireAdmin } from "@/lib/supabase/admin";
+
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
 
 export async function saveAvailability(formData: FormData) {
+  const { supabase } = await requireAdmin();
   const date = String(formData.get("date") ?? "");
   const status = String(formData.get("status") ?? "");
   const capacityValue = String(formData.get("capacity") ?? "").trim();
@@ -17,7 +19,6 @@ export async function saveAvailability(formData: FormData) {
     throw new Error("Capacidade inválida.");
   }
 
-  const supabase = await createClient();
   const { error } = await supabase
     .from("availability_days")
     .upsert({

@@ -1,7 +1,8 @@
 "use server";
 
+import { requireAdmin } from "@/lib/supabase/admin";
+
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
 
 function clean(value: FormDataEntryValue | null) {
   return String(value ?? "").trim();
@@ -17,7 +18,7 @@ function safeFileName(name: string) {
 }
 
 export async function uploadCreationImage(formData: FormData) {
-  const supabase = await createClient();
+  const { supabase } = await requireAdmin();
   const creationId = clean(formData.get("creation_id"));
   const altText = clean(formData.get("alt_text"));
   const file = formData.get("file");
@@ -73,7 +74,7 @@ export async function uploadCreationImage(formData: FormData) {
 }
 
 export async function setCreationCover(formData: FormData) {
-  const supabase = await createClient();
+  const { supabase } = await requireAdmin();
   const creationId = clean(formData.get("creation_id"));
   const imageId = clean(formData.get("image_id"));
 
@@ -99,7 +100,7 @@ export async function setCreationCover(formData: FormData) {
 }
 
 export async function deleteCreationImage(formData: FormData) {
-  const supabase = await createClient();
+  const { supabase } = await requireAdmin();
   const imageId = clean(formData.get("image_id"));
 
   if (!imageId) throw new Error("Imagem inválida.");

@@ -65,13 +65,7 @@ export function AvailabilityCalendar({ month, availability }: { month: string; a
           );
         })}
       </div>
-
-      <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-xs text-[#655f58]">
-        <span>● Disponível</span>
-        <span>● Poucas vagas</span>
-        <span>● Indisponível</span>
-        <span>● Consulte</span>
-      </div>
     </div>
   );
 }
+

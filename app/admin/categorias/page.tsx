@@ -1,20 +1,15 @@
-import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { AdminHeader } from "@/components/admin/admin-header";
+import { requireAdmin } from "@/lib/supabase/admin";
 import { Container } from "@/components/ui/container";
 import { CategoryForm } from "./category-form";
 
 export default async function CategoriesPage() {
-  const supabase = await createClient();
+  const { supabase } = await requireAdmin();
   const { data: categories, error } = await supabase.from("categories").select("*").order("position", { ascending: true }).order("name", { ascending: true });
 
   return (
     <main className="min-h-screen bg-[#faf8f4]">
-      <header className="border-b border-[#e8e1d8] bg-white">
-        <Container className="flex min-h-20 items-center justify-between">
-          <Link href="/admin" className="font-serif text-xl">Sandra Martins</Link>
-          <Link href="/admin" className="text-sm underline underline-offset-4">Voltar ao painel</Link>
-        </Container>
-      </header>
+      <AdminHeader />
       <Container className="py-10 sm:py-14">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8a7c6d]">Administração</p>
         <h1 className="mt-3 font-serif text-4xl tracking-[-0.03em]">Categorias</h1>

@@ -10,7 +10,7 @@ type ButtonProps = {
 
 export function Button({ children, href, variant = "primary", className = "", type = "button" }: ButtonProps) {
   const styles = {
-    primary: "bg-[#2b2926] text-[#faf8f4] hover:bg-[#403c37]",
+    primary: "bg-[#2b2926] text-white hover:bg-[#403c37]",
     secondary: "border border-[#d8d0c5] bg-transparent text-[#2b2926] hover:bg-[#f2ede5]",
     text: "text-[#2b2926] underline decoration-[#b7a995] underline-offset-4 hover:decoration-[#2b2926]"
   };
