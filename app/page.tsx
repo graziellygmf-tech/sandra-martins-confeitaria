@@ -7,13 +7,6 @@ import { getAvailability } from "@/lib/availability/get-availability";
 import { getGallery } from "@/lib/gallery/get-gallery";
 import { QuoteForm } from "@/components/site/quote-form";
 
-const steps = [
-  ["01", "Inspire-se"],
-  ["02", "Escolha a data"],
-  ["03", "Conte sua ideia"],
-  ["04", "Receba seu orçamento"]
-];
-
 type Props = { searchParams: Promise<{ month?: string; quote?: string; creation?: string; date?: string }> };
 
 function currentMonth() {
@@ -45,8 +38,7 @@ export default async function Home({ searchParams }: Props) {
           <div className="font-serif text-xl tracking-[-0.02em]">Sandra Martins</div>
           <nav className="hidden items-center gap-8 text-sm text-[#5f5952] md:flex">
             <a href="#criacao">Criações</a>
-            <a href="#processo">Como funciona</a>
-            <a href="#sobre">Sobre</a>
+            <a href="#disponibilidade">Agenda</a>
           </nav>
           <Button href="#orcamento" variant="secondary">Pedir orçamento</Button>
         </Container>
@@ -55,12 +47,10 @@ export default async function Home({ searchParams }: Props) {
       <section className="py-10 sm:py-16 lg:py-20">
         <Container className="grid items-center gap-10 lg:grid-cols-[1.05fr_.95fr] lg:gap-16">
           <div className="max-w-2xl">
-            <p className="mb-5 text-xs font-semibold uppercase tracking-[0.24em] text-[#8a7c6d]">Confeitaria feita sob encomenda</p>
-            <h1 className="font-serif text-5xl leading-[.98] tracking-[-0.045em] text-[#292622] sm:text-6xl lg:text-7xl">Doces que começam na sua ideia.</h1>
-            <p className="mt-6 max-w-xl text-base leading-7 text-[#655f58] sm:text-lg">Bolos feitos sob encomenda para momentos especiais.</p>
+            <h1 className="font-serif text-5xl leading-[.98] tracking-[-0.045em] text-[#292622] sm:text-6xl lg:text-7xl">Bolos para celebrar.</h1>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button href="#criacao">Ver criações</Button>
-              <Button href="#disponibilidade" variant="secondary">Ver disponibilidade</Button>
+              <Button href="#disponibilidade" variant="secondary">Consultar agenda</Button>
             </div>
           </div>
           <div className="relative min-h-[28rem] overflow-hidden rounded-[2rem] bg-[#e8e0d5] lg:min-h-[38rem]">
@@ -80,29 +70,10 @@ export default async function Home({ searchParams }: Props) {
         </Container>
       </section>
 
-      <section id="processo" className="border-y border-[#e8e1d8] bg-[#f4efe8] py-20 sm:py-28">
-        <Container>
-          <SectionHeading eyebrow="Como funciona" title="Do primeiro olhar ao orçamento." />
-          <div className="mt-12 grid gap-px overflow-hidden rounded-[2rem] border border-[#ded5c9] bg-[#ded5c9] md:grid-cols-4">
-            {steps.map(([number, title, description]) => (
-              <article key={number} className="bg-[#f4efe8] p-7 sm:p-8">
-                <span className="text-xs font-semibold tracking-[0.18em] text-[#9a8b7b]">{number}</span>
-                <h3 className="mt-10 font-serif text-2xl text-[#292622]">{title}</h3>
-              </article>
-            ))}
-          </div>
-        </Container>
-      </section>
-
       <section id="disponibilidade" className="py-20 sm:py-28">
         <Container className="grid gap-10 lg:grid-cols-[.7fr_1.3fr] lg:items-start">
           <div>
-            <SectionHeading eyebrow="Agenda" title="Escolha uma data." description="Consulte a disponibilidade para a sua encomenda." />
-            <div className="mt-6 flex flex-wrap gap-3 text-xs text-[#655f58]">
-              <span className="rounded-full border border-[#d8d0c5] px-3 py-2">Disponível</span>
-              <span className="rounded-full border border-[#cbbba8] bg-[#efe7dc] px-3 py-2">Poucas vagas</span>
-              <span className="rounded-full border border-[#e1ddd7] bg-[#ece9e5] px-3 py-2">Indisponível</span>
-            </div>
+            <SectionHeading eyebrow="Agenda" title="Escolha uma data." />
           </div>
           <div className="rounded-[2rem] border border-[#ded5c9] p-6 sm:p-10">
             <AvailabilityCalendar month={month} availability={availability} />
@@ -110,19 +81,9 @@ export default async function Home({ searchParams }: Props) {
         </Container>
       </section>
 
-      <section id="sobre" className="bg-[#292622] py-20 text-[#faf8f4] sm:py-28">
-        <Container className="grid gap-10 lg:grid-cols-[1fr_1fr] lg:items-center">
-          <div>
-            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.24em] text-[#c8bbaa]">Sandra Martins</p>
-            <h2 className="font-serif text-4xl leading-tight tracking-[-0.03em] sm:text-5xl">A confeitaria por trás das criações.</h2>
-          </div>
-          <p className="max-w-xl text-base leading-8 text-[#d8d0c6]">Bolos feitos com carinho para celebrar momentos especiais.</p>
-        </Container>
-      </section>
-
       <section id="orcamento" className="scroll-mt-8 py-20 sm:py-28">
         <Container className="grid gap-10 lg:grid-cols-[.7fr_1.3fr] lg:items-start">
-          <SectionHeading eyebrow="Orçamento" title="Vamos conversar sobre seu bolo?" description="Conte a data e o que você imaginou." />
+          <SectionHeading eyebrow="Orçamento" title="Peça seu orçamento." />
           <div className="rounded-[2rem] border border-[#ded5c9] bg-white p-6 sm:p-10">
             <QuoteForm creations={creations} selectedCreationId={selectedCreation?.id} selectedDate={params.date} state={params.quote} />
           </div>
@@ -138,3 +99,4 @@ export default async function Home({ searchParams }: Props) {
     </main>
   );
 }
+
