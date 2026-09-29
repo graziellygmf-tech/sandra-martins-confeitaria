@@ -38,7 +38,7 @@ export function LoginForm() {
         <input value={password} onChange={(event) => setPassword(event.target.value)} type="password" required autoComplete="current-password" className="mt-2 h-12 w-full rounded-xl border border-[#d8d0c5] bg-[#faf8f4] px-4 outline-none focus:border-[#8a7c6d]" />
       </label>
       {error && <p className="rounded-xl bg-[#f5e8e4] px-4 py-3 text-sm text-[#754f45]">{error}</p>}
-      <Button>{loading ? "Entrando..." : "Entrar"}</Button>
+      <Button type="submit">{loading ? "Entrando..." : "Entrar"}</Button>
     </form>
   );
 }
