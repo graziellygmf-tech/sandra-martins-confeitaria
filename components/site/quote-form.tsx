@@ -20,22 +20,22 @@ export function QuoteForm({
     <div>
       {state === "success" && (
         <div className="mb-6 rounded-2xl border border-[#cfc4b6] bg-[#f4efe8] p-5 text-sm leading-6 text-[#4e463f]" role="status">
-          Solicitação enviada. A Sandra recebeu seus dados e poderá entrar em contato para conversar sobre o orçamento.
+          Solicitação enviada. A Sandra recebeu seus dados.
         </div>
       )}
       {state === "blocked" && (
         <div className="mb-6 rounded-2xl border border-[#ded5c9] bg-white p-5 text-sm leading-6 text-[#655f58]" role="alert">
-          Essa data está marcada como indisponível. Escolha outra data no calendário.
+          Data indisponível. Escolha outra no calendário.
         </div>
       )}
       {state === "invalid" && (
         <div className="mb-6 rounded-2xl border border-[#ded5c9] bg-white p-5 text-sm leading-6 text-[#655f58]" role="alert">
-          Confira os campos obrigatórios e tente novamente.
+          Revise os campos obrigatórios.
         </div>
       )}
       {state === "error" && (
         <div className="mb-6 rounded-2xl border border-[#ded5c9] bg-white p-5 text-sm leading-6 text-[#655f58]" role="alert">
-          Não foi possível enviar agora. Tente novamente em alguns instantes.
+          Falha no envio. Tente novamente.
         </div>
       )}
 
@@ -72,14 +72,15 @@ export function QuoteForm({
 
         <label className="text-sm">
           <span className="mb-2 block font-medium text-[#292622]">Conte um pouco sobre o que você procura</span>
-          <textarea name="message" maxLength={2000} rows={5} className="w-full resize-y rounded-xl border border-[#d8d0c5] bg-[#faf8f4] p-4 outline-none focus:border-[#8a7c6d]" placeholder="Tema, tamanho, cores, quantidade ou outras referências." />
+          <textarea name="message" maxLength={2000} rows={5} className="w-full resize-y rounded-xl border border-[#d8d0c5] bg-[#faf8f4] p-4 outline-none focus:border-[#8a7c6d]" placeholder="Tema, cores, tamanho ou referências." />
         </label>
 
         <button type="submit" className="min-h-12 rounded-full bg-[#292622] px-6 text-sm font-medium text-[#faf8f4] transition-opacity hover:opacity-90">
           Enviar solicitação
         </button>
-        <p className="text-center text-xs leading-5 text-[#756d64]">O envio é uma solicitação de orçamento, não uma confirmação da encomenda.</p>
+        <p className="text-center text-xs leading-5 text-[#756d64]">O envio não confirma a encomenda.</p>
       </form>
     </div>
   );
 }
+
