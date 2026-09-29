@@ -3,7 +3,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { createInterface } from "node:readline/promises";
 import { stdin, stdout } from "node:process";
-import { readFile, stat } from "node:fs/promises";
+import { readFile, realpath, stat } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -92,7 +92,7 @@ async function validateManifest(manifestPath) {
   const absoluteManifestPath = path.resolve(manifestPath);
   const manifestDirectory = path.dirname(absoluteManifestPath);
   const manifest = JSON.parse(await readFile(absoluteManifestPath, "utf8"));
-  const imageRoot = path.resolve(manifestDirectory, manifest.imageRoot ?? ".");
+  const imageRoot = await realpath(path.resolve(manifestDirectory, manifest.imageRoot ?? "."));
   const items = manifest.items;
 
   if (!Array.isArray(items) || items.length === 0) {
@@ -129,9 +129,14 @@ async function validateManifest(manifestPath) {
       if (seenImagePaths.has(relativeFile)) throw new Error(`${slug}: imagem repetida no manifesto: ${relativeFile}`);
       seenImagePaths.add(relativeFile);
       if (path.isAbsolute(relativeFile)) throw new Error(`${slug}: use caminhos relativos para as imagens.`);
-      const absoluteFile = path.resolve(imageRoot, relativeFile);
+      const lexicalFile = path.resolve(imageRoot, relativeFile);
+      const lexicalRelativePath = path.relative(imageRoot, lexicalFile);
+      if (lexicalRelativePath === ".." || lexicalRelativePath.startsWith(`..${path.sep}`) || path.isAbsolute(lexicalRelativePath)) {
+        throw new Error(`${slug}: imagem fora da pasta imageRoot: ${relativeFile}`);
+      }
+      const absoluteFile = await realpath(lexicalFile);
       const relativeToRoot = path.relative(imageRoot, absoluteFile);
-      if (relativeToRoot.startsWith("..") || path.isAbsolute(relativeToRoot)) {
+      if (relativeToRoot === ".." || relativeToRoot.startsWith(`..${path.sep}`) || path.isAbsolute(relativeToRoot)) {
         throw new Error(`${slug}: imagem fora da pasta imageRoot: ${relativeFile}`);
       }
       const extension = path.extname(absoluteFile).toLowerCase();
