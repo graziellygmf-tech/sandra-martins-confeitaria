@@ -14,7 +14,7 @@ export function GalleryPreview({ creations }: { creations: GalleryCreation[] }) 
 
   return (
     <div className="mt-10 grid gap-5 md:grid-cols-3">
-      {creations.slice(0, 6).map((creation, index) => {
+      {creations.map((creation, index) => {
         const cover = creation.images.find((image) => image.is_cover) ?? creation.images[0];
         return (
           <article key={creation.id} className={index % 3 === 1 ? "md:mt-12" : ""}>

@@ -36,6 +36,7 @@ export default async function Home({ searchParams }: Props) {
   ]);
 
   const selectedCreation = params.creation ? creations.find((creation) => creation.id === params.creation) : undefined;
+  const heroImage = (creations.find((creation) => creation.featured) ?? creations[0])?.images[0];
 
   return (
     <main className="overflow-hidden">
@@ -62,8 +63,12 @@ export default async function Home({ searchParams }: Props) {
               <Button href="#disponibilidade" variant="secondary">Ver disponibilidade</Button>
             </div>
           </div>
-          <div className="min-h-[28rem] rounded-[2rem] bg-[#e8e0d5] p-6 lg:min-h-[38rem]">
-            <p className="text-sm text-[#655f58]">Área reservada para a fotografia principal da marca.</p>
+          <div className="relative min-h-[28rem] overflow-hidden rounded-[2rem] bg-[#e8e0d5] lg:min-h-[38rem]">
+            {heroImage ? (
+              <img src={heroImage.public_url} alt={heroImage.alt_text || "Criação da Sandra Martins Confeitaria"} className="absolute inset-0 h-full w-full object-cover" />
+            ) : (
+              <p className="p-6 text-sm text-[#655f58]">Bolos feitos sob encomenda para momentos especiais.</p>
+            )}
           </div>
         </Container>
       </section>
