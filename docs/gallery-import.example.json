@@ -1,0 +1,21 @@
+{
+  "imageRoot": "./fotos",
+  "items": [
+    {
+      "title": "Bolo decorado com morangos",
+      "slug": "bolo-decorado-com-morangos",
+      "categorySlug": "bolos-decorados",
+      "description": "Bolo decorado com morangos frescos e cobertura de chocolate.",
+      "featured": false,
+      "published": false,
+      "images": [
+        {
+          "file": "bolo-morangos.jpg",
+          "altText": "Bolo redondo decorado com morangos e raspas de chocolate.",
+          "cover": true
+        }
+      ]
+    }
+  ]
+}
+
