@@ -12,7 +12,7 @@ export async function saveAvailability(formData: FormData) {
   const capacityValue = String(formData.get("capacity") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
 
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error("Escolha uma data válida.");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(new Date(`${date}T00:00:00Z`).getTime()) || new Date(`${date}T00:00:00Z`).toISOString().slice(0, 10) !== date) throw new Error("Escolha uma data válida.");
   if (!["AVAILABLE", "LIMITED", "BLOCKED"].includes(status)) throw new Error("Escolha uma situação válida.");
 
   const capacity = capacityValue === "" ? null : Number(capacityValue);
