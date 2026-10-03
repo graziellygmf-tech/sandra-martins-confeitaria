@@ -2,7 +2,7 @@ import { AdminHeader } from "@/components/admin/admin-header";
 import { requireAdmin } from "@/lib/supabase/admin";
 import Link from "next/link";
 import { Container } from "@/components/ui/container";
-import { updateQuoteStatus } from "./actions";
+import { QuoteStatusForm } from "./quote-status-form";
 
 const labels = { NEW: "Novo", CONTACTED: "Contato feito", QUOTED: "Orçamento enviado", CONFIRMED: "Confirmado", CANCELLED: "Cancelado" } as const;
 
@@ -12,7 +12,7 @@ export default async function Page() {
 
   return (
     <main className="min-h-screen bg-[#faf8f4]">
-      <AdminHeader />
+      <AdminHeader activeHref="/admin/orcamentos" />
       <Container className="py-7 sm:py-10 lg:py-14">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8a7c6d]">Acompanhe os contatos</p>
         <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
@@ -30,10 +30,10 @@ export default async function Page() {
                 <div><p className="text-xs uppercase tracking-[0.12em] text-[#8a7c6d]">Pessoas</p><p className="mt-1">{quote.guest_count ?? "Não informado"}</p></div>
               </div>
               {quote.message && <p className="mt-5 bg-[#faf8f4] p-4 text-sm leading-6 text-[#655f58]">{quote.message}</p>}
-              <form action={updateQuoteStatus} className="mt-5 grid gap-2 sm:flex sm:items-center"><input type="hidden" name="id" value={quote.id} /><label className="sr-only" htmlFor={`pedido-${quote.id}`}>Situação do pedido</label><select id={`pedido-${quote.id}`} name="status" defaultValue={quote.status} className="h-12 w-full border border-[#d8d0c5] bg-[#faf8f4] px-3 text-sm sm:w-auto sm:min-w-52">{Object.entries(labels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select><button type="submit" className="min-h-12 bg-[#292622] px-5 text-sm font-medium text-[#faf8f4]">Atualizar situação</button></form>
+              <QuoteStatusForm id={quote.id} status={quote.status} />
           </article>
           ))}
-          {(quotes ?? []).length === 0 && <div className="border border-dashed border-[#d8d0c5] bg-white p-8 text-center sm:p-10"><p className="font-serif text-2xl">Nenhuma solicitação ainda.</p><p className="mt-2 text-sm text-[#655f58]">Quando alguém entrar em contato pelo site, o pedido aparecerá aqui.</p></div>}
+          {!error && (quotes ?? []).length === 0 && <div className="border border-dashed border-[#d8d0c5] bg-white p-8 text-center sm:p-10"><p className="font-serif text-2xl">Nenhuma solicitação ainda.</p><p className="mt-2 text-sm text-[#655f58]">Quando alguém entrar em contato pelo site, o pedido aparecerá aqui.</p></div>}
         </div>
       </Container>
     </main>
