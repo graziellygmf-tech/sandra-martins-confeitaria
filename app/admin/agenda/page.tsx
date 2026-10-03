@@ -1,11 +1,9 @@
 import { AdminHeader } from "@/components/admin/admin-header";
-import { requireAdmin } from "@/lib/supabase/admin";
-import Link from "next/link";
 import { Container } from "@/components/ui/container";
-import { getAvailability } from "@/lib/availability/get-availability";
-import { saveAvailability } from "./actions";
+import { requireAdmin } from "@/lib/supabase/admin";
+import { AvailabilityManager } from "./availability-manager";
 
-type Props = { searchParams: Promise<{ month?: string }> };
+type Props = { searchParams: Promise<{ month?: string; selected?: string; saved?: string }> };
 
 function currentMonth() {
   return new Intl.DateTimeFormat("en-CA", { year: "numeric", month: "2-digit", timeZone: "America/Fortaleza" }).format(new Date());
@@ -14,73 +12,40 @@ function currentMonth() {
 function monthRange(month: string) {
   const [year, monthNumber] = month.split("-").map(Number);
   const last = new Date(Date.UTC(year, monthNumber, 0)).getUTCDate();
-  return { start: month + "-01", end: month + "-" + String(last).padStart(2, "0") };
+  return { start: `${month}-01`, end: `${month}-${String(last).padStart(2, "0")}` };
 }
 
-export default async function Page({ searchParams }: Props) {
-  await requireAdmin();
+export default async function AvailabilityPage({ searchParams }: Props) {
+  const { supabase } = await requireAdmin();
   const params = await searchParams;
-  const month = /^\d{4}-\d{2}$/.test(params.month ?? "") ? params.month! : currentMonth();
+  const requestedMonth = params.month ?? "";
+  const month = /^\d{4}-(0[1-9]|1[0-2])$/.test(requestedMonth) ? requestedMonth : currentMonth();
   const { start, end } = monthRange(month);
-  const days = await getAvailability(start, end);
-  const [year, monthNumber] = month.split("-").map(Number);
-  const previous = new Date(Date.UTC(year, monthNumber - 2, 1)).toISOString().slice(0, 7);
-  const next = new Date(Date.UTC(year, monthNumber, 1)).toISOString().slice(0, 7);
-  const dayMap = new Map(days.map((day) => [day.date, day]));
-  const total = new Date(Date.UTC(year, monthNumber, 0)).getUTCDate();
+  const { data: availabilityData, error: availabilityError } = await supabase
+    .from("availability_days")
+    .select("date,status,capacity,notes")
+    .gte("date", start)
+    .lte("date", end)
+    .order("date", { ascending: true });
+  const availability = availabilityData ?? [];
+  const requestedDate = params.selected ?? "";
+  const requestedDateIsValid = requestedDate.startsWith(`${month}-`)
+    && /^\d{4}-\d{2}-\d{2}$/.test(requestedDate)
+    && new Date(`${requestedDate}T00:00:00Z`).toISOString().slice(0, 10) === requestedDate;
+  const selectedDate = requestedDateIsValid ? requestedDate : `${month}-01`;
+  const saved = params.saved === "1" && selectedDate === params.selected;
 
   return (
     <main className="min-h-screen bg-[#faf8f4]">
-      <AdminHeader />
-      <Container className="py-12">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8a7c6d]">Administração</p>
-        <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="font-serif text-4xl tracking-[-0.03em]">Disponibilidade</h1>
-            <p className="mt-3 max-w-xl text-base leading-7 text-[#655f58]">Defina o estado de cada dia que será mostrado na agenda pública.</p>
-          </div>
-          <div className="flex gap-2">
-            <Link href={"/admin/agenda?month=" + previous} className="rounded-full border border-[#d8d0c5] px-4 py-2 text-sm">←</Link>
-            <span className="rounded-full bg-[#e8e0d5] px-4 py-2 text-sm capitalize">
-              {new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(month + "-01T00:00:00Z"))}
-            </span>
-            <Link href={"/admin/agenda?month=" + next} className="rounded-full border border-[#d8d0c5] px-4 py-2 text-sm">→</Link>
-          </div>
+      <AdminHeader activeHref="/admin/agenda" />
+      <Container className="py-7 sm:py-10 lg:py-14">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8a7c6d]">Organize seus pedidos</p>
+        <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
+          <div><h1 className="font-serif text-3xl tracking-[-0.03em] sm:text-4xl">Agenda</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-[#655f58] sm:text-base">Toque em um dia para escolher se está disponível, com poucas vagas ou indisponível.</p></div>
         </div>
-        <div className="mt-10 space-y-4">
-          {Array.from({ length: total }, (_, index) => {
-            const day = index + 1;
-            const date = month + "-" + String(day).padStart(2, "0");
-            const existing = dayMap.get(date);
-            return (
-              <form key={date} action={saveAvailability} className="grid gap-4 rounded-[1.5rem] border border-[#ded5c9] bg-white p-5 md:grid-cols-[7rem_10rem_8rem_1fr_auto] md:items-end">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.14em] text-[#8a7c6d]">Data</p>
-                  <p className="mt-1 font-serif text-xl">{day}/{monthNumber}</p>
-                </div>
-                <label className="text-sm">
-                  <span className="mb-2 block text-[#655f58]">Status</span>
-                  <select name="status" defaultValue={existing?.status ?? "AVAILABLE"} className="h-11 w-full rounded-xl border border-[#d8d0c5] bg-[#faf8f4] px-3">
-                    <option value="AVAILABLE">Disponível</option>
-                    <option value="LIMITED">Poucas vagas</option>
-                    <option value="BLOCKED">Indisponível</option>
-                  </select>
-                </label>
-                <label className="text-sm">
-                  <span className="mb-2 block text-[#655f58]">Capacidade</span>
-                  <input name="capacity" type="number" min="0" defaultValue={existing?.capacity ?? ""} className="h-11 w-full rounded-xl border border-[#d8d0c5] bg-[#faf8f4] px-3" placeholder="—" />
-                </label>
-                <label className="text-sm">
-                  <span className="mb-2 block text-[#655f58]">Observação interna</span>
-                  <input name="notes" defaultValue={existing?.notes ?? ""} className="h-11 w-full rounded-xl border border-[#d8d0c5] bg-[#faf8f4] px-3" placeholder="Opcional" />
-                </label>
-                <input type="hidden" name="date" value={date} />
-                <button type="submit" className="h-11 rounded-full bg-[#2b2926] px-5 text-sm font-medium text-[#faf8f4]">Salvar</button>
-              </form>
-            );
-          })}
-        </div>
+        {availabilityError ? <p role="alert" className="mt-5 border border-[#dcbab3] bg-[#f5e8e4] p-4 text-sm text-[#754f45]">Não foi possível carregar a agenda. Atualize a página antes de fazer alterações.</p> : <div className="mt-5"><AvailabilityManager month={month} availability={availability} initialDate={selectedDate} saved={saved} /></div>}
       </Container>
     </main>
   );
 }
+

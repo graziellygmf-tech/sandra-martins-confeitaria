@@ -64,7 +64,7 @@ Representa cada trabalho exibido na galeria.
 | created_at | timestamptz | obrigatório |
 | updated_at | timestamptz | obrigatório |
 
-A criação não deve armazenar múltiplas imagens em colunas fixas.
+A criação não deve armazenar múltiplas imagens em colunas fixas. O índice parcial `creation_images_single_cover_idx` permite no máximo uma capa por criação, sem exigir que toda criação já tenha uma foto.
 
 ## 6. creation_images
 
@@ -96,7 +96,7 @@ Representa o estado operacional de cada data.
 
 Status iniciais: `AVAILABLE`, `LIMITED`, `BLOCKED`.
 
-A capacidade é armazenada desde o início para permitir evolução de disponibilidade simples para capacidade operacional.
+A capacidade é armazenada desde o início para permitir evolução de disponibilidade simples para capacidade operacional. `capacity` e `notes` são informações administrativas. A API pública consulta a view `availability_calendar`, que expõe somente `date` e `status`.
 
 ## 8. quote_requests
 
@@ -133,11 +133,11 @@ Para conteúdo público, preferir estados explícitos em vez de apagar imediatam
 
 ## 11. Segurança
 
-As tabelas devem usar PostgreSQL Row Level Security.
+As tabelas devem usar PostgreSQL Row Level Security. As permissões SQL (GRANT/REVOKE) também devem ser explícitas: RLS limita linhas, enquanto as permissões limitam quais operações e objetos cada papel pode consultar.
 
 ### Público
 
-Pode ler somente conteúdo explicitamente publicado e dados de disponibilidade destinados ao cliente.
+Pode ler somente conteúdo explicitamente publicado e a view `availability_calendar` (data e situação). Não pode consultar diretamente `availability_days`, nem ler capacidade ou anotações privadas.
 
 ### Administrador
 
@@ -164,3 +164,6 @@ Entidades possíveis, somente quando houver necessidade: `customers`, `orders`, 
 ## 15. Regra principal
 
 O banco deve representar **estado do negócio**, não detalhes da interface. Por exemplo, o banco deve guardar `status = LIMITED` e `capacity = 3`, e não uma cor de card do calendário.
+
+As migrations do repositório usam os mesmos identificadores de versão já registrados no Supabase. Migrations novas recebem um identificador posterior; não renomeie nem reaplique uma migration já executada sem reconciliar o histórico.
+

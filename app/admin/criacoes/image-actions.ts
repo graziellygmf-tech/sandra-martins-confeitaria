@@ -80,6 +80,15 @@ export async function setCreationCover(formData: FormData) {
 
   if (!creationId || !imageId) throw new Error("Imagem inválida.");
 
+  const { data: image, error: imageError } = await supabase
+    .from("creation_images")
+    .select("id")
+    .eq("id", imageId)
+    .eq("creation_id", creationId)
+    .maybeSingle();
+
+  if (imageError || !image) throw new Error("Escolha uma foto desta criação.");
+
   const { error: clearError } = await supabase
     .from("creation_images")
     .update({ is_cover: false })
@@ -95,6 +104,24 @@ export async function setCreationCover(formData: FormData) {
 
   if (coverError) throw new Error(coverError.message);
 
+  revalidatePath("/admin/criacoes");
+  revalidatePath("/");
+}
+
+export async function updateCreationImageAltText(formData: FormData) {
+  const { supabase } = await requireAdmin();
+  const imageId = clean(formData.get("image_id"));
+  const altText = clean(formData.get("alt_text"));
+
+  if (!imageId) throw new Error("Imagem inválida.");
+  if (altText.length > 300) throw new Error("A descrição deve ter até 300 caracteres.");
+
+  const { error } = await supabase
+    .from("creation_images")
+    .update({ alt_text: altText || null })
+    .eq("id", imageId);
+
+  if (error) throw new Error(error.message);
   revalidatePath("/admin/criacoes");
   revalidatePath("/");
 }
@@ -142,3 +169,4 @@ export async function deleteCreationImage(formData: FormData) {
   revalidatePath("/admin/criacoes");
   revalidatePath("/");
 }
+

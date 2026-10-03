@@ -194,9 +194,18 @@ export type Database = {
         Relationships: [];
       };
     };
-    Views: Record<string, never>;
+    Views: {
+      availability_calendar: {
+        Row: {
+          date: string;
+          status: "AVAILABLE" | "LIMITED" | "BLOCKED";
+        };
+        Relationships: [];
+      };
+    };
     Functions: Record<string, never>;
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };
 };
+

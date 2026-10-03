@@ -38,47 +38,33 @@ O objetivo é manter uma única aplicação fácil de desenvolver, testar e impl
 ## 3. Estrutura de diretórios
 ~~~text
 app/
-├── (site)/
-│   ├── page.tsx
-│   ├── galeria/
-│   ├── criacao/
-│   ├── disponibilidade/
-│   ├── como-funciona/
-│   ├── sobre/
-│   └── faq/
 ├── admin/
-│   ├── page.tsx
-│   ├── calendario/
-│   ├── galeria/
-│   ├── criacoes/
-│   ├── pedidos/
-│   └── configuracoes/
+│   ├── agenda/          # calendário e ações de disponibilidade
+│   ├── categorias/      # categorias e formulários
+│   ├── criacoes/        # catálogo, formulários e fotos
+│   ├── orcamentos/      # solicitações e atualização de situação
+│   ├── actions.ts       # saída da conta
+│   └── page.tsx         # painel inicial
+├── criacoes/[slug]/     # página pública da criação
 ├── login/
-├── layout.tsx
-└── globals.css
+├── orcamento/actions.ts
+├── page.tsx             # site público
+└── layout.tsx
 
 components/
-├── ui/
-├── site/
-├── gallery/
-├── calendar/
-└── admin/
+├── admin/               # navegação e login administrativo
+├── site/                # galeria, agenda e contato público
+└── ui/                  # elementos de interface reutilizáveis
 
 lib/
-├── supabase/
-├── availability/
-├── whatsapp/
-└── utils/
+├── availability/        # consulta e apresentação da agenda
+├── gallery/             # consultas da galeria
+└── supabase/            # clientes, autorização e tipos
 
-types/
-
-supabase/
-├── migrations/
-└── seed.sql
-
-tests/
+types/database.ts
+supabase/migrations/
 ~~~
-A estrutura pode evoluir, mas novos módulos devem seguir os domínios do produto em vez de criar pastas genéricas sem responsabilidade clara.
+A estrutura real deve evoluir sem misturar os domínios do produto. As rotas administrativas ficam em `app/admin/` e cada área mantém suas telas e ações próximas umas das outras.
 
 ## 4. Domínios
 ### Gallery
@@ -113,13 +99,16 @@ Dados de negócio não devem ser hardcoded na interface. Disponibilidade, criaç
 O painel administrativo exige autenticação.
 - Supabase Auth para identidade;
 - PostgreSQL Row Level Security para proteção dos dados;
-- rotas administrativas protegidas;
+- páginas e ações de escrita validam o perfil `admin` no servidor; o middleware adianta o redirecionamento, mas não substitui essa validação;
 - segredos somente em variáveis de ambiente;
 - `.env.local` nunca versionado.
+- permissões SQL explícitas complementam o RLS;
+- o calendário público lê somente data e situação, sem capacidade ou anotação privada.
 A segurança não deve depender apenas de esconder páginas no frontend.
 
 ## 9. Imagens
 Fotos não serão armazenadas no Git. O código fica no GitHub; as imagens ficam no Supabase Storage.
+O bucket `gallery` é público para servir as fotos da vitrine; qualquer pessoa que possua uma URL pode acessar o arquivo, mesmo que a criação ainda não esteja publicada. Não coloque documentos ou imagens privadas nesse bucket. Um fluxo futuro de rascunhos privados exigirá armazenamento privado separado e publicação explícita dos arquivos.
 
 ## 10. SEO e performance
 - URLs semânticas;
@@ -186,3 +175,4 @@ Antes de adicionar uma tecnologia ou serviço, responder:
 5. Existe uma migração simples caso a solução precise mudar?
 
 A arquitetura deve crescer como o negócio, não antes dele.
+

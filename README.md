@@ -9,7 +9,7 @@ O projeto não é um e-commerce tradicional. É uma plataforma composta por:
 - **Painel administrativo** — calendário, galeria, criações e solicitações.
 - **Backend** — dados, autenticação e armazenamento de imagens.
 
-## Stack planejada
+## Tecnologias
 - Next.js + React
 - TypeScript
 - Tailwind CSS
@@ -48,7 +48,9 @@ O projeto não é um e-commerce tradicional. É uma plataforma composta por:
 - [Arquitetura](docs/ARCHITECTURE.md)
 - [Banco de dados](docs/DATABASE.md)
 
-## Status
-**Fase:** especificação técnica inicial.
+## Status atual
 
-O repositório está sendo estruturado antes da implementação do produto para manter arquitetura, banco e experiência coerentes desde o primeiro ciclo de desenvolvimento.
+O MVP está implementado: site público com galeria, páginas de criações, agenda de disponibilidade e contato por WhatsApp; painel administrativo autenticado para criações, categorias, agenda e solicitações registradas. As imagens ficam no Supabase Storage e os dados no PostgreSQL.
+
+O projeto continua em evolução. Alterações de banco devem ser feitas por migrations em `supabase/migrations/`; não aplique uma migration em produção sem revisar e validar a mudança.
+

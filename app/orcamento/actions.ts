@@ -36,7 +36,7 @@ export async function createQuoteRequest(formData: FormData) {
   const supabase = await createClient();
 
   const { data: availability } = await supabase
-    .from("availability_days")
+    .from("availability_calendar")
     .select("status")
     .eq("date", requestedDate)
     .maybeSingle();
@@ -73,3 +73,4 @@ export async function createQuoteRequest(formData: FormData) {
 
   redirect("/?quote=success#orcamento");
 }
+

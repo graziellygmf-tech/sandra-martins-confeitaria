@@ -54,3 +54,4 @@ using (
       and p.role = 'admin'
   )
 );
+

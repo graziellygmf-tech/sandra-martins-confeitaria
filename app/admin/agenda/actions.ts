@@ -3,6 +3,7 @@
 import { requireAdmin } from "@/lib/supabase/admin";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 export async function saveAvailability(formData: FormData) {
   const { supabase } = await requireAdmin();
@@ -11,12 +12,12 @@ export async function saveAvailability(formData: FormData) {
   const capacityValue = String(formData.get("capacity") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
 
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error("Data inválida.");
-  if (!["AVAILABLE", "LIMITED", "BLOCKED"].includes(status)) throw new Error("Status inválido.");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(new Date(`${date}T00:00:00Z`).getTime()) || new Date(`${date}T00:00:00Z`).toISOString().slice(0, 10) !== date) throw new Error("Escolha uma data válida.");
+  if (!["AVAILABLE", "LIMITED", "BLOCKED"].includes(status)) throw new Error("Escolha uma situação válida.");
 
   const capacity = capacityValue === "" ? null : Number(capacityValue);
   if (capacity !== null && (!Number.isInteger(capacity) || capacity < 0)) {
-    throw new Error("Capacidade inválida.");
+    throw new Error("O limite de encomendas deve ser um número igual ou maior que zero.");
   }
 
   const { error } = await supabase
@@ -32,4 +33,6 @@ export async function saveAvailability(formData: FormData) {
 
   revalidatePath("/");
   revalidatePath("/admin/agenda");
+  redirect(`/admin/agenda?month=${date.slice(0, 7)}&selected=${date}&saved=1`);
 }
+

@@ -19,7 +19,7 @@ export async function saveCreation(formData: FormData) {
   const featured = formData.get("featured") === "on";
   const published = formData.get("is_published") === "on";
 
-  if (!title || !slug || !categoryId) throw new Error("Título, slug e categoria são obrigatórios.");
+  if (!title || !slug || !categoryId) throw new Error("Nome, endereço da página e categoria são obrigatórios.");
 
   const payload = { title, slug, description: description || null, category_id: categoryId, position: Number.isFinite(position) ? position : 0, featured, is_published: published };
   const result = id
@@ -31,3 +31,4 @@ export async function saveCreation(formData: FormData) {
   revalidatePath("/admin/criacoes");
   revalidatePath("/");
 }
+
