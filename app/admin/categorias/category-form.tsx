@@ -27,9 +27,30 @@ export function CategoryForm({ category, onCancel }: { category?: Category; onCa
   const [slug, setSlug] = useState(category?.slug ?? "");
   const [description, setDescription] = useState(category?.description ?? "");
   const [position, setPosition] = useState(String(category?.position ?? 0));
+  const [saving, setSaving] = useState(false);
+  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+  async function submit(formData: FormData) {
+    setSaving(true);
+    setFeedback(null);
+    try {
+      await saveCategory(formData);
+      setFeedback({ type: "success", message: category ? "Alterações salvas." : "Categoria cadastrada." });
+      if (!category) {
+        setName("");
+        setSlug("");
+        setDescription("");
+        setPosition("0");
+      }
+    } catch {
+      setFeedback({ type: "error", message: "Não foi possível salvar. Confira os dados e tente novamente." });
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
-    <form action={saveCategory} className="space-y-4">
+    <form action={submit} className="space-y-4">
       {category?.id && <input type="hidden" name="id" value={category.id} />}
       <input type="hidden" name="slug" value={slug} />
       <label className="block">
@@ -51,9 +72,10 @@ export function CategoryForm({ category, onCancel }: { category?: Category; onCa
         </label>
       </div>
       <div className="flex flex-wrap gap-3">
-        <button type="submit" className="min-h-12 bg-[#292622] px-5 py-3 text-sm font-medium text-white">{category ? "Salvar alterações" : "Criar categoria"}</button>
+        <button type="submit" disabled={saving} className="min-h-12 bg-[#292622] px-5 py-3 text-sm font-medium text-white disabled:opacity-60">{saving ? "Salvando…" : category ? "Salvar alterações" : "Criar categoria"}</button>
         {onCancel && <button type="button" onClick={onCancel} className="min-h-12 border border-[#ddd5ca] px-5 py-3 text-sm">Cancelar</button>}
       </div>
+      {feedback && <p role={feedback.type === "error" ? "alert" : "status"} className={`border p-3 text-sm ${feedback.type === "error" ? "border-[#dcbab3] bg-[#f5e8e4] text-[#754f45]" : "border-[#c7d8c5] bg-[#edf4eb] text-[#314631]"}`}>{feedback.message}</p>}
     </form>
   );
 }
