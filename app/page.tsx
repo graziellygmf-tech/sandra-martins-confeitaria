@@ -24,10 +24,11 @@ export default async function Home({ searchParams }: Props) {
   const params = await searchParams;
   const month = /^\d{4}-\d{2}$/.test(params.month ?? "") ? params.month! : currentMonth();
   const { start, end } = monthRange(month);
-  const [creations, availability] = await Promise.all([
+  const [creations, availabilityResult] = await Promise.all([
     getGallery(),
     getAvailability(start, end)
   ]);
+  const { availability, error: availabilityError } = availabilityResult;
 
   const heroCreation = creations.find((creation) => creation.featured) ?? creations[0];
   const heroImage = heroCreation?.images.find((image) => image.is_cover) ?? heroCreation?.images[0];
@@ -65,6 +66,7 @@ export default async function Home({ searchParams }: Props) {
           </div>
           <div className="border-y border-[#ded5c9] py-5 sm:border sm:p-8">
             <AvailabilityCalendar month={month} availability={availability} />
+            {availabilityError && <p role="alert" className="mt-4 border border-[#dcbab3] bg-[#f5e8e4] p-3 text-sm text-[#754f45]">Não foi possível atualizar a agenda. Consulte a Sandra antes de escolher uma data.</p>}
           </div>
         </Container>
       </section>
