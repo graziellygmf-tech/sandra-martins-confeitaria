@@ -1,26 +1,6 @@
 import Link from "next/link";
 import type { AvailabilityDay } from "@/lib/supabase/types";
-
-const labels = {
-  AVAILABLE: "Disponível",
-  LIMITED: "Poucas vagas",
-  BLOCKED: "Indisponível",
-  UNKNOWN: "Consulte"
-} as const;
-
-const statusClasses = {
-  AVAILABLE: "bg-white text-[#292622]",
-  LIMITED: "bg-[#fbf4e8] text-[#5e5144]",
-  BLOCKED: "bg-[#f1efec] text-[#8a8279]",
-  UNKNOWN: "bg-white text-[#655f58]"
-} as const;
-
-const statusDotClasses = {
-  AVAILABLE: "bg-[#6d8b70]",
-  LIMITED: "bg-[#c39855]",
-  BLOCKED: "bg-[#aaa39a]",
-  UNKNOWN: "border border-[#9a9187] bg-transparent"
-} as const;
+import { availabilityCellClasses, availabilityLabels } from "@/lib/availability/presentation";
 
 function monthLabel(month: string) {
   return new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric", timeZone: "UTC" })
@@ -67,12 +47,11 @@ export function AvailabilityCalendar({ month, availability }: { month: string; a
           return (
             <div
               key={item.date}
-              aria-label={`${item.day} de ${monthLabel(month)}: ${labels[status]}`}
-              title={`${item.day} de ${monthLabel(month)} · ${labels[status]}`}
-              className={`flex aspect-square min-w-0 flex-col items-center justify-center gap-1 p-1 sm:gap-2 sm:p-2 ${statusClasses[status]}`}
+              aria-label={`${item.day} de ${monthLabel(month)}: ${availabilityLabels[status]}`}
+              title={`${item.day} de ${monthLabel(month)} · ${availabilityLabels[status]}`}
+              className={`flex aspect-square min-w-0 flex-col items-center justify-center gap-1 p-1 sm:gap-2 sm:p-2 ${availabilityCellClasses[status]}`}
             >
               <span className="text-xs font-medium sm:text-sm">{item.day}</span>
-              <span aria-hidden="true" className={`size-1.5 sm:size-2 ${statusDotClasses[status]}`} />
             </div>
           );
         })}
@@ -81,8 +60,8 @@ export function AvailabilityCalendar({ month, availability }: { month: string; a
       <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2 text-xs text-[#655f58] sm:gap-x-6">
         {(["AVAILABLE", "LIMITED", "BLOCKED", "UNKNOWN"] as const).map((status) => (
           <span key={status} className="inline-flex items-center gap-2">
-            <span aria-hidden="true" className={`size-2 ${statusDotClasses[status]}`} />
-            {labels[status]}
+            <span aria-hidden="true" className={`size-3 ${availabilityCellClasses[status]}`} />
+            {availabilityLabels[status]}
           </span>
         ))}
       </div>
