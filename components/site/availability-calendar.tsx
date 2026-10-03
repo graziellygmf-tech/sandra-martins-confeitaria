@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { AvailabilityDay } from "@/lib/supabase/types";
+import type { PublicAvailabilityDay } from "@/lib/supabase/types";
 import { availabilityCellClasses, availabilityLabels } from "@/lib/availability/presentation";
 
 function monthLabel(month: string) {
@@ -7,7 +7,7 @@ function monthLabel(month: string) {
     .format(new Date(month + "-01T00:00:00Z"));
 }
 
-function buildDays(month: string, availability: AvailabilityDay[]) {
+function buildDays(month: string, availability: PublicAvailabilityDay[]) {
   const [year, monthNumber] = month.split("-").map(Number);
   const first = new Date(Date.UTC(year, monthNumber - 1, 1));
   const last = new Date(Date.UTC(year, monthNumber, 0));
@@ -23,7 +23,7 @@ function buildDays(month: string, availability: AvailabilityDay[]) {
   });
 }
 
-export function AvailabilityCalendar({ month, availability }: { month: string; availability: AvailabilityDay[] }) {
+export function AvailabilityCalendar({ month, availability }: { month: string; availability: PublicAvailabilityDay[] }) {
   const [year, monthNumber] = month.split("-").map(Number);
   const previous = new Date(Date.UTC(year, monthNumber - 2, 1)).toISOString().slice(0, 7);
   const next = new Date(Date.UTC(year, monthNumber, 1)).toISOString().slice(0, 7);
@@ -47,6 +47,7 @@ export function AvailabilityCalendar({ month, availability }: { month: string; a
           return (
             <div
               key={item.date}
+              role="group"
               aria-label={`${item.day} de ${monthLabel(month)}: ${availabilityLabels[status]}`}
               title={`${item.day} de ${monthLabel(month)} · ${availabilityLabels[status]}`}
               className={`flex aspect-square min-w-0 flex-col items-center justify-center gap-1 p-1 sm:gap-2 sm:p-2 ${availabilityCellClasses[status]}`}
