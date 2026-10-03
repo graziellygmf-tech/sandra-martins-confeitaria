@@ -26,12 +26,12 @@ export default async function CreationsPage() {
 
   return (
     <main className="min-h-screen bg-[#faf8f4]">
-      <AdminHeader />
+      <AdminHeader activeHref="/admin/criacoes" />
       <Container className="py-7 sm:py-10 lg:py-14">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8a7c6d]">Organize a galeria</p>
         <div className="mt-2 flex flex-wrap items-end justify-between gap-4">
           <div><h1 className="font-serif text-3xl tracking-[-0.03em] sm:text-4xl">Criações</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-[#655f58] sm:text-base">Cadastre fotos, revise os detalhes e escolha o que aparece no site.</p></div>
-          <span className="text-sm text-[#655f58]">{creationResult.data?.length ?? 0} cadastradas</span>
+          <span className="text-sm text-[#655f58]">{creationResult.error ? "Quantidade indisponível" : `${creationResult.data?.length ?? 0} cadastradas`}</span>
         </div>
 
         <nav aria-label="Atalhos de criações" className="mt-5 grid grid-cols-2 gap-2 sm:flex">
