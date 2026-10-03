@@ -17,7 +17,7 @@ export async function saveCategory(formData: FormData) {
   const position = Number(formData.get("position") || 0);
   const isActive = formData.get("is_active") === "on";
 
-  if (!name || !slug) throw new Error("Nome e slug são obrigatórios.");
+  if (!name || !slug) throw new Error("Nome e endereço da página são obrigatórios.");
 
   const payload = {
     name,
@@ -46,3 +46,4 @@ export async function toggleCategory(id: string, isActive: boolean) {
   revalidatePath("/admin/categorias");
   revalidatePath("/");
 }
+
