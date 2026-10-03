@@ -63,7 +63,9 @@ export function CreationCatalog({ creations, categories }: { creations: Creation
 
       <p className="mt-4 text-sm text-[#655f58]" aria-live="polite">{filtered.length} {filtered.length === 1 ? "criação encontrada" : "criações encontradas"}</p>
 
-      {filtered.length ? (
+      {creations.length === 0 ? (
+        <div className="mt-3 border border-dashed border-[#d8d0c5] bg-white p-6 text-center"><p className="font-serif text-xl">Sua galeria ainda está vazia.</p><p className="mt-2 text-sm text-[#655f58]">Cadastre a primeira criação para começar.</p><a href="#nova-criacao" className="mt-3 inline-flex min-h-11 items-center font-medium underline underline-offset-4">Criar criação</a></div>
+      ) : filtered.length ? (
         <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {filtered.map((creation) => {
             const cover = creation.images.find((image) => image.is_cover) ?? creation.images[0];
