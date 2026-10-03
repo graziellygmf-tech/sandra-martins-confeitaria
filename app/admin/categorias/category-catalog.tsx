@@ -40,7 +40,9 @@ export function CategoryCatalog({ categories }: { categories: CategoryItem[] }) 
       </div>
       <p className="mt-4 text-sm text-[#655f58]" aria-live="polite">{filtered.length} {filtered.length === 1 ? "categoria encontrada" : "categorias encontradas"}</p>
 
-      {filtered.length ? (
+      {categories.length === 0 ? (
+        <div className="mt-3 border border-dashed border-[#d8d0c5] bg-white p-6 text-center"><p className="font-serif text-xl">Nenhuma categoria cadastrada.</p><p className="mt-2 text-sm text-[#655f58]">Crie uma categoria para organizar as criações.</p><a href="#nova-categoria" className="mt-3 inline-flex min-h-11 items-center font-medium underline underline-offset-4">Criar categoria</a></div>
+      ) : filtered.length ? (
         <div className="mt-3 space-y-2">
           {filtered.map((category) => (
             <details key={category.id} className="group border border-[#e8e1d8] bg-white">
