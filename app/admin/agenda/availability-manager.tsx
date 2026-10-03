@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
-import type { AvailabilityDay } from "@/lib/supabase/types";
+import type { AdminAvailabilityDay } from "@/lib/supabase/types";
 import { availabilityCellClasses, availabilityLabels, type AvailabilityStatus } from "@/lib/availability/presentation";
 import { saveAvailability } from "./actions";
 
-type CalendarCell = { day: number; date: string; availability?: AvailabilityDay } | null;
+type CalendarCell = { day: number; date: string; availability?: AdminAvailabilityDay } | null;
 
-function buildDays(month: string, availability: AvailabilityDay[]) {
+function buildDays(month: string, availability: AdminAvailabilityDay[]) {
   const [year, monthNumber] = month.split("-").map(Number);
   const first = new Date(Date.UTC(year, monthNumber - 1, 1));
   const last = new Date(Date.UTC(year, monthNumber, 0));
@@ -43,7 +43,7 @@ export function AvailabilityManager({
   saved
 }: {
   month: string;
-  availability: AvailabilityDay[];
+  availability: AdminAvailabilityDay[];
   initialDate: string;
   saved: boolean;
 }) {
