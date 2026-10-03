@@ -108,6 +108,7 @@ A segurança não deve depender apenas de esconder páginas no frontend.
 
 ## 9. Imagens
 Fotos não serão armazenadas no Git. O código fica no GitHub; as imagens ficam no Supabase Storage.
+O bucket `gallery` é público para servir as fotos da vitrine; qualquer pessoa que possua uma URL pode acessar o arquivo, mesmo que a criação ainda não esteja publicada. Não coloque documentos ou imagens privadas nesse bucket. Um fluxo futuro de rascunhos privados exigirá armazenamento privado separado e publicação explícita dos arquivos.
 
 ## 10. SEO e performance
 - URLs semânticas;
