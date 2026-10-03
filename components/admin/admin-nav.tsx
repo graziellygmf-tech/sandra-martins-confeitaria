@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 export const adminNavItems = [
   { href: "/admin", label: "Início", icon: "home" },
@@ -9,7 +10,7 @@ export const adminNavItems = [
 ] as const;
 
 function Icon({ name }: { name: (typeof adminNavItems)[number]["icon"] }) {
-  const paths: Record<string, React.ReactNode> = {
+  const paths: Record<string, ReactNode> = {
     home: <><path d="m3 10 9-7 9 7" /><path d="M5 9.5V21h14V9.5" /><path d="M9 21v-6h6v6" /></>,
     calendar: <><rect x="3" y="4.5" width="18" height="17" rx="2" /><path d="M16 2.5v4M8 2.5v4M3 9.5h18" /></>,
     inbox: <><path d="M4 5h16v14H4z" /><path d="m4 14 4 0 1.5 3h5L16 14h4" /></>,
