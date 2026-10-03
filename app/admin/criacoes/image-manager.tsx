@@ -61,7 +61,7 @@ export function CreationImageManager({
                     )}
                     <form action={deleteCreationImage}>
                       <input type="hidden" name="image_id" value={image.id} />
-                      <button type="submit" className="text-xs text-red-700 underline underline-offset-4">Excluir</button>
+                      <button type="submit" className="inline-flex min-h-11 items-center px-2 text-xs text-red-700 underline underline-offset-4">Remover foto</button>
                     </form>
                   </div>
                 </div>
@@ -89,13 +89,14 @@ export function CreationImageManager({
           <span className="mt-2 block text-xs text-[#8a7c6d]">JPG, PNG ou WebP · até 8 MB</span>
         </label>
         <label className="block">
-          <span className="text-sm font-medium">Texto alternativo</span>
-          <input name="alt_text" className="mt-2 w-full rounded-xl border border-[#ddd5ca] bg-white px-4 py-3" placeholder="Ex.: Bolo de aniversário com decoração floral" />
+          <span className="text-sm font-medium">Descrição da foto para leitores de tela <span className="font-normal text-[#756d64]">(opcional)</span></span>
+          <input name="alt_text" className="mt-1.5 min-h-12 w-full border border-[#ddd5ca] bg-white px-4 py-3" placeholder="Ex.: Bolo de aniversário com decoração floral" />
         </label>
-        <button type="submit" disabled={!selectedFile} className="w-fit rounded-full bg-[#292622] px-5 py-3 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-40">
-          Enviar foto
+        <button type="submit" disabled={!selectedFile} className="min-h-12 w-full bg-[#292622] px-5 py-3 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-40 sm:w-fit">
+          Adicionar foto
         </button>
       </form>
     </div>
   );
 }
+
