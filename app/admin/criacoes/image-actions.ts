@@ -1,7 +1,6 @@
 "use server";
 
 import { requireAdmin } from "@/lib/supabase/admin";
-
 import { revalidatePath } from "next/cache";
 
 function clean(value: FormDataEntryValue | null) {
@@ -17,23 +16,34 @@ function safeFileName(name: string) {
     .replace(/^-+|-+$/g, "");
 }
 
+const allowedTypes = ["image/jpeg", "image/png", "image/webp"] as const;
+const MAX_FILE_SIZE = 8 * 1024 * 1024;
+const MAX_BATCH_SIZE = 8 * 1024 * 1024;
+
 export async function uploadCreationImage(formData: FormData) {
   const { supabase } = await requireAdmin();
   const creationId = clean(formData.get("creation_id"));
   const altText = clean(formData.get("alt_text"));
-  const file = formData.get("file");
+  const files = formData
+    .getAll("files")
+    .filter((entry): entry is File => entry instanceof File && entry.size > 0);
 
-  if (!creationId || !(file instanceof File) || file.size === 0) {
-    throw new Error("Selecione uma imagem.");
+  if (!creationId || files.length === 0) {
+    throw new Error("Selecione pelo menos uma imagem.");
   }
 
-  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
-  if (!allowedTypes.includes(file.type)) {
-    throw new Error("Use uma imagem JPG, PNG ou WebP.");
+  const totalSize = files.reduce((total, file) => total + file.size, 0);
+  if (totalSize > MAX_BATCH_SIZE) {
+    throw new Error("O envio combinado deve ter no máximo 8 MB. Selecione menos fotos ou envie em dois lotes.");
   }
 
-  if (file.size > 8 * 1024 * 1024) {
-    throw new Error("A imagem deve ter no máximo 8 MB.");
+  for (const file of files) {
+    if (!allowedTypes.includes(file.type as (typeof allowedTypes)[number])) {
+      throw new Error(`A foto "${file.name}" não está em um formato aceito. Use JPG, PNG ou WebP.`);
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      throw new Error(`A foto "${file.name}" ultrapassa o limite de 8 MB.`);
+    }
   }
 
   const { data: existing, error: existingError } = await supabase
@@ -45,28 +55,48 @@ export async function uploadCreationImage(formData: FormData) {
 
   if (existingError) throw new Error(existingError.message);
 
-  const nextPosition = existing?.[0]?.position != null ? existing[0].position + 1 : 0;
-  const shouldBeCover = !existing?.length;
-  const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
-  const path = `creations/${creationId}/${crypto.randomUUID()}-${safeFileName(file.name.replace(/\.[^.]+$/, "")) || "imagem"}.${extension}`;
+  let nextPosition = existing?.[0]?.position != null ? existing[0].position + 1 : 0;
+  let shouldBeCover = !existing?.length;
+  const uploadedPaths: string[] = [];
+  const insertedIds: string[] = [];
 
-  const { error: uploadError } = await supabase.storage
-    .from("gallery")
-    .upload(path, file, { contentType: file.type, upsert: false });
+  try {
+    for (const file of files) {
+      const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const path = `creations/${creationId}/${crypto.randomUUID()}-${safeFileName(file.name.replace(/\.[^.]+$/, "")) || "imagem"}.${extension}`;
 
-  if (uploadError) throw new Error(uploadError.message);
+      const { error: uploadError } = await supabase.storage
+        .from("gallery")
+        .upload(path, file, { contentType: file.type, upsert: false });
 
-  const { error: insertError } = await supabase.from("creation_images").insert({
-    creation_id: creationId,
-    storage_path: path,
-    alt_text: altText || null,
-    position: nextPosition,
-    is_cover: shouldBeCover
-  });
+      if (uploadError) throw new Error(uploadError.message);
+      uploadedPaths.push(path);
 
-  if (insertError) {
-    await supabase.storage.from("gallery").remove([path]);
-    throw new Error(insertError.message);
+      const { data: inserted, error: insertError } = await supabase
+        .from("creation_images")
+        .insert({
+          creation_id: creationId,
+          storage_path: path,
+          alt_text: altText || null,
+          position: nextPosition,
+          is_cover: shouldBeCover
+        })
+        .select("id")
+        .single();
+
+      if (insertError) throw new Error(insertError.message);
+      insertedIds.push(inserted.id);
+      nextPosition += 1;
+      shouldBeCover = false;
+    }
+  } catch (error) {
+    if (insertedIds.length) {
+      await supabase.from("creation_images").delete().in("id", insertedIds);
+    }
+    if (uploadedPaths.length) {
+      await supabase.storage.from("gallery").remove(uploadedPaths);
+    }
+    throw error;
   }
 
   revalidatePath("/admin/criacoes");
@@ -169,4 +199,3 @@ export async function deleteCreationImage(formData: FormData) {
   revalidatePath("/admin/criacoes");
   revalidatePath("/");
 }
-
